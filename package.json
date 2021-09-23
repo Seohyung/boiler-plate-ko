@@ -2,10 +2,10 @@
   "name": "boiler-plate",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node server/index.js",
-    "backend": "nodemon server/index.js",
+    "start": "node server/app.js",
+    "backend": "nodemon server/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "concurrently \"npm run backend\" \"npm run start --prefix client\""
   },
@@ -19,7 +19,10 @@
     "express": "^4.17.1",
     "http-proxy-middleware": "^1.2.0",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.12.3"
+    "morgan": "^1.10.0",
+    "mysql2": "^2.3.0",
+    "sequelize": "^6.6.5",
+    "sequelize-cli": "^6.2.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"
