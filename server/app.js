@@ -1,13 +1,21 @@
 const express = require('express');
 const path = require('path');
 const morgan = require('morgan');
+const nunjucks = require('nunjucks');
 
-const { sequelize } = require('../models');
-const { application } = require('express');
+const { sequelize } = require('./models');
+const indexRouter = require('./routes');
+const usersRouter = require('./routes/users');
+const signinRouter = require('./routes/signin');
 
 const app = express();
 app.set('port', process.env.PORT || 3001);
 app.set('view engine', 'html');
+app.set('views', path.join(__dirname, 'views'));
+nunjucks.configure('views', {
+  express: app,
+  watch: true,
+});
 
 sequelize
   .sync({ force: false })
@@ -22,6 +30,10 @@ app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/signin', signinRouter);
 
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다`);
