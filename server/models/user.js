@@ -1,4 +1,6 @@
 const Sequelize = require('sequelize');
+const jwt = require('jsonwebtoken');
+const { Op } = require('sequelize');
 
 module.exports = class User extends Sequelize.Model {
   static init(sequelize) {
@@ -39,4 +41,18 @@ module.exports = class User extends Sequelize.Model {
     );
   }
   static associate(db) {}
+
+  static findByToken(token) {
+    try {
+      let decoded = jwt.verify(token, 'secretToken');
+      if (decoded) {
+        const user = User.findOne({
+          where: { [Op.and]: [{ email: decoded }, { token: token }] },
+        });
+        return user;
+      }
+    } catch (err) {
+      return err;
+    }
+  }
 };

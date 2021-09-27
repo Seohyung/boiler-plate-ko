@@ -5,18 +5,19 @@ const nunjucks = require('nunjucks');
 
 const { sequelize } = require('./models');
 const indexRouter = require('./routes');
-const usersRouter = require('./routes/users');
+const registerRouter = require('./routes/register');
 const signinRouter = require('./routes/signin');
 const authRouter = require('./routes/auth');
+//const logoutRouter = require('routes/logout');
 
 const app = express();
 app.set('port', process.env.PORT || 3001);
-app.set('view engine', 'html');
+/*app.set('view engine', 'html');
 app.set('views', path.join(__dirname, 'views'));
 nunjucks.configure('views', {
   express: app,
   watch: true,
-});
+});*/
 
 sequelize
   .sync({ force: false })
@@ -27,15 +28,20 @@ sequelize
     console.error(err);
   });
 
+app.get('/api/hello', (req, res) => {
+  res.send('안녕하세요.');
+});
+
 app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/signin', signinRouter);
-app.use('/auth', authRouter);
+app.use('/index', indexRouter);
+app.use('/api/users/register', registerRouter);
+app.use('/api/users/signin', signinRouter);
+app.use('/api/users/auth', authRouter);
+//app.use('/api/users/logout', logoutRouter);
 
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다`);
@@ -54,6 +60,9 @@ app.listen(app.get('port'), () => {
   console.log(app.get('port'), '번 포트에서 대기 중');
 });
 
+process.on('uncaughtException', function (err) {
+  console.log(err);
+});
 /*const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const config = require('./config/key')

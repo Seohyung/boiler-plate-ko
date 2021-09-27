@@ -36,6 +36,7 @@ router.route('/').post(async (req, res, next) => {
     //res.status(201).json(user);
   } catch (err) {
     console.error(err);
+    res.status(400).send(err);
     next(err);
   }
 });
