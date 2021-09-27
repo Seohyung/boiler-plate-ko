@@ -1,54 +1,54 @@
 const express = require('express');
-const passport = require('passport');
-const bcrypt = require('bcrypt');
-const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
-const User = require('../models/user');
-
 const router = express.Router();
+const User = require('../models/user');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+const { Op } = require('sequelize');
 
-router.post('/join', isNotLoggedIn, async (req, res, next) => {
-  const { email, nick, password } = req.body;
+router.route('/').get(async (req, res, next) => {
   try {
-    const exUser = await User.findOne({ where: { email } });
-    if (exUser) {
-      return res.redirect('/join?error=exist');
+    let token = await req.cookies.x_auth;
+    let decoded = jwt.verify(token, 'secretToken');
+    let user;
+    if (decoded) {
+      user = await User.findOne({
+        where: { [Op.and]: [{ email: decoded }, { token: token }] },
+      });
+      req.token = token;
+      req.user = user;
     }
-    const hash = await bcrypt.hash(password, 12);
-    await User.create({
-      email,
-      nick,
-      password: hash,
+    if (!user) {
+      return res.json({
+        isAuth: false,
+        error: true,
+      });
+    }
+    res.status(200).json({
+      id: req.user.id,
+      email: req.user.email,
+      password: req.user.password,
+      token: req.user.token,
     });
-    return res.redirect('/');
-  } catch (error) {
-    console.error(error);
-    return next(error);
+    next();
+  } catch (err) {
+    console.error(err);
+    next(err);
   }
 });
 
-router.post('/login', isNotLoggedIn, (req, res, next) => {
-  passport.authenticate('local', (authError, user, info) => {
-    if (authError) {
-      console.error(authError);
-      return next(authError);
-    }
-    if (!user) {
-      return res.redirect(`/?loginError=${info.message}`);
-    }
-    return req.login(user, (loginError) => {
-      if (loginError) {
-        console.error(loginError);
-        return next(loginError);
-      }
-      return res.redirect('/');
+router.route('/logout').get(async (req, res, next) => {
+  try {
+    await User.update({ token: '' }, { where: { id: req.user.id } });
+    return res.status(200).send({
+      success: true,
     });
-  })(req, res, next); // 미들웨어 내의 미들웨어에는 (req, res, next)를 붙입니다.
-});
-
-router.get('/logout', isLoggedIn, (req, res) => {
-  req.logout();
-  req.session.destroy();
-  res.redirect('/');
+  } catch (err) {
+    console.log(err);
+    res.json({
+      success: false,
+    });
+    next(err);
+  }
 });
 
 module.exports = router;

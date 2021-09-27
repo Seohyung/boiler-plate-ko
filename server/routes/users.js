@@ -21,7 +21,7 @@ router
         email: req.body.useremail,
         password: hash,
       });
-      console.log(user);
+      //console.log(user);
       res.status(201).json(user);
     } catch (err) {
       console.error(err);

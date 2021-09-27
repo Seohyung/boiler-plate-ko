@@ -7,6 +7,7 @@ const { sequelize } = require('./models');
 const indexRouter = require('./routes');
 const usersRouter = require('./routes/users');
 const signinRouter = require('./routes/signin');
+const authRouter = require('./routes/auth');
 
 const app = express();
 app.set('port', process.env.PORT || 3001);
@@ -34,6 +35,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/signin', signinRouter);
+app.use('/auth', authRouter);
 
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다`);
