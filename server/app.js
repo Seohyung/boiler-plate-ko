@@ -6,18 +6,12 @@ const nunjucks = require('nunjucks');
 const { sequelize } = require('./models');
 const indexRouter = require('./routes');
 const registerRouter = require('./routes/register');
-const signinRouter = require('./routes/signin');
+const loginRouter = require('./routes/login');
 const authRouter = require('./routes/auth');
 //const logoutRouter = require('routes/logout');
 
 const app = express();
 app.set('port', process.env.PORT || 3001);
-/*app.set('view engine', 'html');
-app.set('views', path.join(__dirname, 'views'));
-nunjucks.configure('views', {
-  express: app,
-  watch: true,
-});*/
 
 sequelize
   .sync({ force: false })
@@ -39,7 +33,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use('/index', indexRouter);
 app.use('/api/users/register', registerRouter);
-app.use('/api/users/signin', signinRouter);
+app.use('/api/users/login', loginRouter);
 app.use('/api/users/auth', authRouter);
 //app.use('/api/users/logout', logoutRouter);
 
@@ -53,7 +47,6 @@ app.use((err, req, res, next) => {
   res.locals.message = err.message;
   res.locals.error = process.env.NODE_ENV !== 'production' ? err : {};
   res.status(err.status || 500);
-  res.render('error');
 });
 
 app.listen(app.get('port'), () => {

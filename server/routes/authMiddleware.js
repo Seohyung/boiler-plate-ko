@@ -11,7 +11,7 @@ let authMiddleware = (req, res, next) => {
 
   req.token = token;
   req.user = user;
-  next();
+  //next();
 };
 
 module.exports = authMiddleware;
